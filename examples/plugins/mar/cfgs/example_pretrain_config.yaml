@@ -1,0 +1,80 @@
+## ---- Component search_space ----
+# ---- Type cnn ----
+search_space_type: cnn
+search_space_cfg:
+  # Schedulable attributes: 
+  cell_layout: [0, 0, 1, 0, 1, 0, 1, 0]
+  num_cell_groups: 2
+  num_init_nodes: 1
+  num_layers: 8
+  num_node_inputs: 1
+  num_steps: 1
+  reduce_cell_groups:
+  - 1
+  shared_primitives: # this is not used
+  - none
+# ---- End Type cnn ----
+## ---- End Component search_space ----
+
+## ---- Component dataset ----
+# ---- Type two_dimension_artificial_mar ----
+dataset_type: two_dimension_artificial_mar
+dataset_cfg:
+  # Schedulable attributes: 
+  target_size: [320, 320]
+  flip_p: 0.5
+  identity_p: 0.0
+  degrees: 0
+# ---- End Type two_dimension_artificial_mar ----
+## ---- End Component dataset ----
+
+## ---- Component final_model ----
+# ---- Type two_dimension_unet ----
+final_model_type: two_dimension_unet
+final_model_cfg:
+  C_in: 1
+  init_channel: 36
+  depth: 5
+  C_out: 1
+  norm: InstanceNorm2d
+  activation: ELU
+  inplace: false
+# ---- End Type two_dimension_unet ----
+## ---- End Component final_model ----
+
+## ---- Component objective ----
+# ---- Type mar_objective ----
+objective_type: mar_objective
+objective_cfg:
+  criterion_type: RRMSELoss
+  criterion_kwargs: null
+# ---- End Type mar_objective ----
+## ---- End Component objetive ----
+
+## ---- Component final_trainer ----
+# ---- Type mar_trainer ----
+final_trainer_type: mar_trainer
+final_trainer_cfg:
+  # Schedulable attributes: 
+  auxiliary_head: false
+  auxiliary_weight: 0.0
+  add_regularization: true
+  batch_size: 32
+  epochs: 500
+  grad_clip: null
+  learning_rate: 0.01
+  momentum: 0.9
+  no_bias_decay: false
+  optimizer_scheduler:
+    gamma: 0.1
+    milestones:
+    - 100
+    type: MultiStepLR
+  schedule_cfg: null
+  warmup_epochs: 20
+  weight_decay: 0.0001
+  eval_every: 10
+  save_as_state_dict: true
+  workers_per_queue: 16
+# ---- End Type mar_trainer ----
+## ---- End Component final_trainer ----

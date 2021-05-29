@@ -1,0 +1,123 @@
+## ---- Component search_space ----
+# ---- Type cnn ----
+search_space_type: cnn
+search_space_cfg:
+  # Schedulable attributes: 
+  cell_layout: [0, 0, 1, 0, 1, 0, 1, 0]
+  num_cell_groups: 2
+  num_init_nodes: 1
+  num_layers: 8
+  num_node_inputs: 1
+  num_steps: 1
+  reduce_cell_groups:
+  - 1
+  shared_primitives: # this is not used
+  - none
+# ---- End Type cnn ----
+## ---- End Component search_space ----
+
+## ---- Component dataset ----
+# ---- Type two_dimension_three_dimension_clinical_mar ----
+dataset_type: two_dimension_three_dimension_clinical_mar
+dataset_cfg:
+  # Schedulable attributes: 
+  target_size: [320, 320]
+  flip_p: 0.5
+  identity_p: 0.
+  degrees: 0
+# ---- End Type two_dimension_three_dimension_clinical_mar ----
+## ---- End Component dataset ----
+
+## ---- Component final_model ----
+# ---- Type two_dimension_unet ----
+final_model_type: two_dimension_unet
+final_model_cfg:
+  C_in: 1
+  init_channel: 24
+  depth: 5
+  C_out: 1
+  norm: InstanceNorm2d
+  activation: ELU
+  inplace: false
+# ---- End Type two_dimension_unet ----
+## ---- End Component final_model ----
+
+## ---- Component objective ----
+# ---- Type discriminator_guiding_distillation_objective ----
+objective_type: discriminator_guiding_distillation_objective
+objective_cfg:
+  distillation_cfg:
+    model_type: two_dimension_unet
+    model_cfg:
+      C_in: 1
+      init_channel: 36
+      depth: 5
+      C_out: 1
+      norm: InstanceNorm2d
+      activation: ELU
+      inplace: false
+    multiprocess: false
+    save_as_state_dict: true
+    model_path: /data/mar/3d_new/new/300/model_state.pt  # path of the teacher model
+  discrimination_cfg:
+    model_type: two_dimension_discriminator
+    model_cfg:
+      C_in: 1
+      num_classes: 2
+      init_channel: 10
+      linear_dim: 4000
+      affine: true
+      inplace: false
+      norm: InstanceNorm2d
+      activation: ReLU
+    multiprocess: false
+    optimizer_type: SGD
+    save_as_state_dict: true
+    learning_rate: 0.025
+    momentum: 0.9
+    warmup_epochs: 0
+    optimizer_scheduler:
+      gamma: 0.5
+      milestones:
+      - 1
+      - 30
+      - 500
+      type: MultiStepLR
+    weight_decay: 0.0003
+    no_bias_decay: false
+    grad_clip: null
+    add_regularization: true
+  distillation_coeff: 0.99995
+# ---- End Type discriminator_guiding_distillation_objective ----
+## ---- End Component objective ----
+
+## ---- Component final_trainer ----
+# ---- Type mar_discriminator_guiding_distillation_trainer ----
+final_trainer_type: mar_discriminator_guiding_distillation_trainer
+final_trainer_cfg:
+  train_discriminator_every: 2
+  # Schedulable attributes: 
+  auxiliary_head: false
+  auxiliary_weight: 0.0
+  add_regularization: true
+  batch_size: 64
+  epochs: 1000
+  grad_clip: null
+  learning_rate: 0.2
+  momentum: 0.9
+  no_bias_decay: false
+  optimizer_scheduler:
+    gamma: 0.5
+    milestones:
+    - 1
+    - 30
+    - 500
+    type: MultiStepLR
+  schedule_cfg: null
+  warmup_epochs: 10
+  weight_decay: 0.0001
+  eval_every: 5
+  save_as_state_dict: true
+  workers_per_queue: 16
+# ---- End Type mar_discriminator_guiding_distillation_trainer ----
+## ---- End Component final_trainer ----
